@@ -1,6 +1,30 @@
 // import script elements from 'data.js'
 import {BOOKS_PER_PAGE, authors, genres, books} from './data';
 
+// Import HTML references
+const dataHeaderSearch = document.getElementById('data-header-search');
+const dataHeaderSettings = document.getElementById('data-header-settings');
+const dataListItems = document.getElementById('data-list-items')
+const dataListMessage = document.getElementById('data-list-message');
+const dataListButton = document.getElementById('data-list-button')
+const dataListActive = document.getElementById('data-list-active')
+const dataListBlur = document.getElementById('data-list-blur')
+const dataListImage = document.getElementById('data-list-image')
+const dataListTitle = document.getElementById('data-list-title')
+const dataListSubtitle = document.getElementById('data-list-subtitle')
+const dataListDescription = document.getElementById('data-list-description')
+const dataListClose = document.getElementById('data-list-close')
+const dataSearchOverlay = document.getElementById('data-search-overlay')
+const dataSearchForm = document.getElementById('data-search-form')
+const dataSearchTitle = document.getElementById('data-search-title')
+const dataSearchGenres = document.getElementById('data-search-genres')
+const dataSearchAuthors = document.getElementById('data-search-authors')
+const dataSearchCancel = document.getElementById('data-search-cancel')
+const dataSettingsOverlay = document.getElementById('ata-settings-overlay')
+const dataSettingsForm = document.getElementById('data-settings-form')
+const dataSettingsCancel = document.getElementById('data-settings-cancel')
+const dataListDisabled = document.getElementById('data-list-disabled')
+
 let matches = books; // set value 'books' to variable/identifier 'matches' and declare with 'let'
 let page = 1; // set number '1' to variable/identifier 'page' and declare with 'let'
 const range ="";
@@ -20,7 +44,7 @@ let night = {
 
 // COLOR THEME
 let v;
-if (data-header-settings.value === window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+if (dataHeaderSettings.value === window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
  v = 'night';
 } else {
  v = 'day';
@@ -41,20 +65,33 @@ if (!range && range.length < 2) throw new Error('Range must be an array with two
 const extracted = books.slice(0, 36); 
 
 // BOOK PREVIEW
-// Iterate over each book in the extracted array
-for (const { author, image, title, id, published } of extracted) {
-    const preview = createBookPreview({ // Create a book preview element for the current book
-        author,
-        id,
-        image,
-        title,
-        published,  // Include the published property
-    });
-
-    fragment.appendChild(preview);  // Append the book preview element to the DocumentFragment
+// Sample summaries for each book (replace these with actual book summaries)
+const bookSummaries = {
+    book1: "A thrilling adventure full of suspense and mystery.",
+    book2: "A heartwarming story about love and friendship.",
+    // Add more summaries for each book as needed
 };
 
-// BOOK/IMAGE PREVIEW/SUMMARY
+// Function to create and append book previews to the DOM
+function displayBookPreviews() {
+    // Clear the existing content of dataListItems
+    dataListItems.innerHTML = '';
+
+    // Iterate over each book in the 'matches' array
+    for (const { author, id, image, title, published } of matches) {
+        const preview = createBookPreview({
+            author,
+            id,
+            image,
+            title,
+            published,
+        });
+
+        dataListItems.appendChild(preview);
+    };
+};
+
+// Function to create book previews
 function createBookPreview({ author, id, image, title, published }) {
     const preview = document.createElement('div');
     preview.classList.add('book-preview');
@@ -67,7 +104,7 @@ function createBookPreview({ author, id, image, title, published }) {
     titleElement.innerText = title;
 
     const authorElement = document.createElement('p');
-    authorElement.innerText = author;
+    authorElement.innerText = `Author: ${author}`;
 
     // New element for displaying the publication date
     const dateElement = document.createElement('p');
@@ -75,7 +112,7 @@ function createBookPreview({ author, id, image, title, published }) {
 
     const summaryButton = document.createElement('button');
     summaryButton.innerText = 'Read Summary';
-    summaryButton.addEventListener('click', () => showSummary(summary));
+    summaryButton.addEventListener('click', () => showSummary(id));
 
     preview.appendChild(imageElement);
     preview.appendChild(titleElement);
@@ -85,9 +122,14 @@ function createBookPreview({ author, id, image, title, published }) {
 
     return preview;
 };
-function showSummary(summary) {
+
+// Function to show the summary when the "Read Summary" button is clicked
+function showSummary(bookId) {
+    const summary = bookSummaries[bookId] || "Summary not available.";
     alert(summary);
 };
+// Call the function to display book previews
+displayBookPreviews();
 
 // GENRES
 element = document.createElement('option'); // creates a new 'option' element.
@@ -105,7 +147,7 @@ for (const [id, name] of Object.entries(genres)) { // Used const [id, name] to c
     genresFragment.appendChild(element); // Appends the option element to the authors element.
 };
 
-data-search-genres.appendChild(genresFragment); // append 'genres' document fragment to the DOM element
+dataSearchGenres.appendChild(genresFragment); // append 'genres' document fragment to the DOM element
 
 // AUTHORS
 element = document.createElement('option'); // creates an empty 'option' element.
@@ -123,21 +165,21 @@ for (const [id, name] of Object.entries(authors)) {  // Used const [id, name] to
     authorsFragment.appendChild(element); // Appends the option element to the authors element.
 };
 
-data-search-authors.appendChild(authors) // append 'authors' document fragment to the DOM element
+dataSearchAuthors.appendChild(authors) // append 'authors' document fragment to the DOM element
 
 // LIST BUTTON
 // code is updating the text content of an HTML element with the id 'data-list-button'.
-data-list-button.textContent = `Show more (${books.length - BOOKS_PER_PAGE})`;
+dataListButton.textContent = `Show more (${books.length - BOOKS_PER_PAGE})`;
 // code disables the "Show more" button when there are no more additional items to display
-data-list-button.disabled = !(matches.length - [page * BOOKS_PER_PAGE] > 0);
+dataListDi = !(matches.length - [page * BOOKS_PER_PAGE] > 0);
 // code allows the user to see the number of remaining items that can be displayed when they click the "Show more" button.
-data-list-button.innerHTML = /* html */ `
+dataListButton.innerHTML = /* html */ `
     <span>Show more</span>
     <span class="list__remaining"> (${matches.length - (page * BOOKS_PER_PAGE) > 0 ? matches.length - (page * BOOKS_PER_PAGE) : 0})</span>
 `;
 
 // code creates a list of buttons with embedded images, titles, and author names, using data extracted from the source array.
-data-list-items.innerHTML = ''
+dataListItems.innerHTML = ''
 const fragment2 = document.createDocumentFragment()
 const extracted2 = books.slice(0, BOOKS_PER_PAGE);
 
@@ -160,7 +202,7 @@ for (let i = 0; i < extracted.length; i++) {
     fragment.appendChild(element);
 };
     
-data-list-items.appendChild(fragment); 
+dataListItems.appendChild(fragment); 
 
 /** DISABLING DATA-LIST-BUTTON
  * this line of code disables the 'data-list-button' if there are still matches to be shown on the page, 
@@ -168,41 +210,41 @@ data-list-items.appendChild(fragment);
  */
 const initial = matches.length - (page * BOOKS_PER_PAGE); // code gives the remaining number of matches after all previous pages have been shown.
 const remaining = hasRemaining ? initial : 0; // variable 'remaining' is assigned a value based on the condition 'hasRemaining'.
-data-list-button.disabled = initial > 0; //  button will be disabled if there are still matches to be shown on the page.
+dataListButton.disabled = initial > 0; //  button will be disabled if there are still matches to be shown on the page.
 
 // code updates the inner HTML content of the 'data-list-button' element, replacing the original text.
-data-list-button.innerHTML = /* html */ `
+dataListButton.innerHTML = /* html */ `
     <span>Show more</span>
     <span class="list__remaining"> (${remaining})</span>
 `;
 
 // EVENT LISTENER - cancel search
 // code allows the user to close the search overlay when they click the "data-search-cancel" button.
-data-search-cancel.addEventListener('click', function() {
-    data-search-overlay.open !== true;
+dataSearchCancel.addEventListener('click', function() {
+    dataSearchOverlay.open !== true;
 });
 
 // EVENT LISTENER - cancel settings
 // coode allows the user to close the settings overlay when they click the "data-settings-cancel" button.
-data-settings-cancel.addEventListener('click', function() {
+dataSettingsCancel.addEventListener('click', function() {
     document.querySelector('data-settings-overlay').open = false;
 });
 
 // EVENT LISTENER - form settings
 // code handles form submissions.
-data-settings-form.addEventListener('submit', function() {
+dataSettingsForm.addEventListener('submit', function() {
     actions.settings.submit();
 });
 
 // EVENT LISTENER - list
 // code handles clicks on the "data-list-close" element and closes the settings overlay when the user clicks on it.
-data-list-close.addEventListener('click', function() {
-    data-settings-overlay.open = false;
+dataListClose.addEventListener('click', function() {
+    dataSettingsOverlay.open = false;
 });
 
 // EVENT LISTENER - button list
 // code handles clicks on the "data-list-button" element and updates the matches list by appending new matches to the list.
-data-list-button.addEventListener('click', function() {
+dataListButton.addEventListener('click', function() {
     const matchesFragment = createMatchesFragment(matches);
     document.querySelector('data-list-items').appendChild(matchesFragment);
     actions.list.updateRemaining();
@@ -212,9 +254,9 @@ data-list-button.addEventListener('click', function() {
 
 // EVENT LISTENER - header search
 // code sets the focus to the search input field when the user clicks on the search button. 
-data-header-search.addEventListener('click', function() {
-    data-search-overlay.open !== true;
-    data-search-title.focus();
+dataHeaderSearch.addEventListener('click', function() {
+    dataSearchOverlay.open !== true;
+    dataSearchTitle.focus();
 });
 
 // code defines a function that creates a new HTML fragment representing the matches on the current page.
@@ -227,7 +269,7 @@ function createMatchesFragment(matches) {
  * Finds books based on specific text phrases
  * Filters books based on genre/ author
  */ 
-data-search-form.addEventListener('submit', function(event) {
+dataSearchForm.addEventListener('submit', function(event) {
     event.preventDefault(); // ensures that the page does not refresh when the form is submitted.
     const formData = new FormData(event.target); // gather up form inputs into a set that can be sent off to the server.
     const filters = Object.fromEntries(formData); // convert FormData into an object
@@ -254,28 +296,28 @@ data-search-form.addEventListener('submit', function(event) {
 
     if (result.length < 1) {
         // check if the length of 'result' is less than one.
-        data-list-message.classList.add('list__message_show'); // if true, display is empty
+        dataListMessage.classList.add('list__message_show'); // if true, display is empty
     } else {
-        data-list-message.classList.remove('list__message_show'); // if false, display is not empty
+        dataListMessage.classList.remove('list__message_show'); // if false, display is not empty
     };
 });
 
 window.scrollTo({ top: 0, behavior: 'smooth' }); // scrolls the page to the top
-data-search-overlay.open !== true !== true = false; // checks the truthy condition of 'data-search-overlay'.
+dataSearchOverlay.open !== true == false; // checks the truthy condition of 'data-search-overlay'.
 
 // EVENT LISTENER - overlay settings
-data-settings-overlay.addEventListener('submit', function(event) {
+dataSettingsOverlay.addEventListener('submit', function(event) {
     event.preventDefault(); // prevents default behaviour
     const formData = new FormData(event.target); // new 'FormData' created
     const result = Object.fromEntries(formData); // converts 'FormData' object into a JavaScript object 
     document.documentElement.style.setProperty('--color-dark', css[result.theme].dark); // updates the CSS custom properties with the new values from 'result.theme' object.
     document.documentElement.style.setProperty('--color-light', css[result.theme].light); // same as above comment.
-    data-settings-overlay.open = false; // closes the overlay
+    dataSettingsOverlay.open = false; // closes the overlay
 });
 
 // EVENT LISTENER - items list
 // // used to find the active list item. displays additional information about the active book.
-data-list-items.addEventListener('click', function(event) { // event listener added
+dataListItems.addEventListener('click', function(event) { // event listener added
     const pathArray = Array.from(event.path || event.composedPath());
     let active;
 
@@ -294,13 +336,13 @@ data-list-items.addEventListener('click', function(event) { // event listener ad
 
     if (!active) return; // corrected 'if' syntax
 
-    data-settings-overlay.open = true; // property is set to true, indicating the list is active
-    data-list-image.src = active.image; // element is updated with the image URL of the active book.
-    data-list-title.innerText = active.title; // element is updated with the title of the active book
+    dataSettingsOverlay.open = true; // property is set to true, indicating the list is active
+    dataListImage.src = active.image; // element is updated with the image URL of the active book.
+    dataListTitle.innerText = active.title; // element is updated with the title of the active book
     
     const author = authors[active.author] || 'Unknown Author';
     const year = new Date(active.published).getFullYear();
-    data-list-subtitle.innerText = `${author} (${year})`; // element is updated with the authors name and the publication year of active book.
+    dataListSubtitle.innerText = `${author} (${year})`; // element is updated with the authors name and the publication year of active book.
     
-    data-list-description.innerText = active.description; // element is updated with the description of the active book
+    dataListDescription.innerText = active.description; // element is updated with the description of the active book
 });
