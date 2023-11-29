@@ -27,55 +27,85 @@ const dataListDisabled = document.getElementById('data-list-disabled')
 
 let matches = books; // set value 'books' to variable/identifier 'matches' and declare with 'let'
 let page = 1; // set number '1' to variable/identifier 'page' and declare with 'let'
-const range ="";
-let summary;
-
-
-// code creates an object that represents the lighting conditions during a day, with two states: 'dark' and 'light'.
-let day = {
-    dark: '10, 10, 20',
-    light: '255, 255, 255',
-}; 
-// code creates an object that represents the lighting conditions during the night, with two states: 'dark' and 'light'.
-let night = {
-    dark: '255, 255, 255',
-    light: '10, 10, 20',
-};
 
 // COLOR THEME
-let v;
-if (dataHeaderSettings.value === window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
- v = 'night';
-} else {
- v = 'day';
+// documentElement.style.setProperty()' is used to set/modify CSS properties of HTML element.
+document.documentElement.style.setProperty('--color-dark', day[v].dark);
+// code creates an object that represents the lighting conditions during a day.
+let day = {
+    dark: '--color-dark',
+};
+// documentElement.style.setProperty()' is used to set/modify CSS properties of HTML element.
+document.documentElement.style.setProperty('--color-light', day[v].light);
+// code creates an object that represents the lighting conditions during the night.
+let night = {
+    light: '--color-force-light',
 };
 
-// documentElement.style.setProperty()' is used to set/modify CSS properties of HTML element.
-document.documentElement.style.setProperty('--color-dark', css[v].dark);
-document.documentElement.style.setProperty('--color-light', css[v].light);
+let theme; 
+if (dataHeaderSettings.value === window.matchMedia && window.matchMedia('prefers-color-scheme: dark').matches) {
+    theme = night;
+} else {
+    theme = day;
+};
+
 
 // a temporary container for a collection of nodes which will later be manipulated.
 let fragment = document.createDocumentFragment();
+// Extract the first 36 books from the 'books' array
+const extracted = books.slice(0, 36); 
+
 
 // INPUT VALIDATION
 if (!books && !Array.isArray(books)) throw new Error('Source required');
 if (!range && range.length < 2) throw new Error('Range must be an array with two numbers');
 
-// Extract the first 36 books from the 'books' array
-const extracted = books.slice(0, 36); 
 
 // BOOK PREVIEW
-// Sample summaries for each book (replace these with actual book summaries)
-const bookSummaries = {
-    book1: "A thrilling adventure full of suspense and mystery.",
-    book2: "A heartwarming story about love and friendship.",
-    // Add more summaries for each book as needed
+
+// Function to create book previews
+function createBookPreview({ author, id, image, title, published }) { // function takes argument using destructing method, to extract properties
+    const preview = document.createElement('div'); // serves as the container for the preview
+    preview.classList.add('preview'); // CSS class added
+
+    const imageElement = document.createElement('img'); // image element is created 
+    imageElement.src = image;
+    imageElement.alt = title;
+
+    const titleElement = document.createElement('h3'); // header element created for book title
+    titleElement.innerText = title;
+
+    const authorElement = document.createElement('p'); // paragraph element created for author information
+    authorElement.innerText = `Author: ${author}`;
+
+    const dateElement = document.createElement('p'); // New element for created for the publication date
+    dateElement.innerText = `Published: ${new Date(published).toLocaleDateString()}`; // 'published' converted into a local string
+
+    const summaryButton = document.createElement('button'); // New element created for Read Summary
+    summaryButton.innerText = 'Read Summary'; // 
+    summaryButton.addEventListener('click', () => showSummary(id)); // Event listener set that calls 'showSummary' function when clicked.
+
+    preview.appendChild(imageElement);
+    preview.appendChild(titleElement);
+    preview.appendChild(authorElement);
+    preview.appendChild(dateElement);
+    preview.appendChild(summaryButton);
+
+    return preview; // Created 'preview' is returned from the function
 };
 
-// Function to create and append book previews to the DOM
+// Function to show the summary when the "Read Summary" button is clicked
+function showSummary(bookId) { // 
+    const summary = BOOKS_PER_PAGE[bookId] || "Summary not available."; // retreived information from 'BOOKS_PER_PAGE'. if information exists, assign to 'summary' or show deafault string.
+    alert(summary); // Displays content of summary in browser alert 
+};
+
+// Append the book preview to the dataListItems element (seems to be a mistake, function needs to call the createBookPreview function and append its result (a book preview element) to dataListItems)
+dataListItems.appendChild(createBookPreview);
+
+// Function displays book previews in the DOM
 function displayBookPreviews() {
-    // Clear the existing content of dataListItems
-    dataListItems.innerHTML = '';
+    dataListItems.innerHTML = '';     // Clear the existing content of dataListItems and sets innerHTML to an empty string
 
     // Iterate over each book in the 'matches' array
     for (const { author, id, image, title, published } of matches) {
@@ -87,78 +117,45 @@ function displayBookPreviews() {
             published,
         });
 
-        dataListItems.appendChild(preview);
+        dataListItems.appendChild(preview); // Appends the created book preview
     };
 };
 
-// Function to create book previews
-function createBookPreview({ author, id, image, title, published }) {
-    const preview = document.createElement('div');
-    preview.classList.add('book-preview');
+displayBookPreviews(); // Calls the function to display book previews
 
-    const imageElement = document.createElement('img');
-    imageElement.src = image;
-    imageElement.alt = title;
-
-    const titleElement = document.createElement('h3');
-    titleElement.innerText = title;
-
-    const authorElement = document.createElement('p');
-    authorElement.innerText = `Author: ${author}`;
-
-    // New element for displaying the publication date
-    const dateElement = document.createElement('p');
-    dateElement.innerText = `Published: ${new Date(published).toLocaleDateString()}`;
-
-    const summaryButton = document.createElement('button');
-    summaryButton.innerText = 'Read Summary';
-    summaryButton.addEventListener('click', () => showSummary(id));
-
-    preview.appendChild(imageElement);
-    preview.appendChild(titleElement);
-    preview.appendChild(authorElement);
-    preview.appendChild(dateElement); // Add the date element
-    preview.appendChild(summaryButton);
-
-    return preview;
-};
-
-// Function to show the summary when the "Read Summary" button is clicked
-function showSummary(bookId) {
-    const summary = bookSummaries[bookId] || "Summary not available.";
-    alert(summary);
-};
-// Call the function to display book previews
-displayBookPreviews();
 
 // GENRES
-element = document.createElement('option'); // creates a new 'option' element.
-element.value = 'any'; // sets the value of the new option element to 'any'.
-element.innerText = 'All Genres'; // sets the text of the new option element to 'All Genres'.
+
+// Section is responsible for creating a 'dropdown' list of 'genres' 
+element = document.createElement('option'); // creates a new 'option' element. Usually used in a <select> dropdown list
+element.value = 'any'; // sets the value of the new option element to 'any'. Any may represent a default value.
+element.innerText = 'All Genres'; // sets the text of the new option element to 'All Genres'. This is wha the user sees
 genres.appendChild(element); // appends the new option element to the "genres" document fragment.
 
-// list for genres allowing users to choose their genre preference from a dropdown list.
+// lightweight container for holding multiple nodes outside of the DOM tree
 let genresFragment = document.createDocumentFragment();
 
-for (const [id, name] of Object.entries(genres)) { // Used const [id, name] to correctly destructure the entries of genres.
+// A loop that iterates over the entries of 'genre' and creates an 'option' element for each genre. 
+for (const [id, name] of Object.entries(genres)) { // Gets an arrray of key- value pairs from 'genres'. Loop then ietrates and extracts the properties from each entry.
     const element = document.createElement('option'); // Created a new option element inside the loop using document.createElement.
     element.value = id; // sets 'id' as the property for the value
-    element.innerText = name; // Set the value and innerText properties of the option element.
+    element.innerText = name; // Set the value and innerText properties of the option element. This is the text the user sees in the dropdownlist. 
     genresFragment.appendChild(element); // Appends the option element to the authors element.
 };
 
 dataSearchGenres.appendChild(genresFragment); // append 'genres' document fragment to the DOM element
 
 // AUTHORS
-element = document.createElement('option'); // creates an empty 'option' element.
-element.value = 'any'; // sets the value of 'option' to 'any'
-element.innerText = 'All Authors'; // sets the content of 'option' element to 'all authors'
-authors.appendChild(element); // adds the new 'option' element to the list of 'option' elements within 'authors' DocumentFragment.
+// Sections is resposible for creating a 'dropdown' list for 'authors'
+element = document.createElement('option'); // creates a new 'option' element. Usually used in a <select> dropdown list
+element.value = 'any'; // sets the value of the new option element to 'any'. Any may represent a default value.
+element.innerText = 'All Authors'; // sets the text of the new option element to 'All Genres'. This is wha the user sees
+authors.appendChild(element); // appends the new option element to the "genres" document fragment.
 
 // list for authors allowing users to choose their author preference from a dropdown list.
 let authorsFragment = document.createDocumentFragment();
 
-for (const [id, name] of Object.entries(authors)) {  // Used const [id, name] to correctly destructure the entries of authors.
+for (const [id, name] of Object.entries(authors)) {  // Gets an arrray of key- value pairs from 'authors'. Loop then ietrates and extracts the properties from each entry.
     const element = document.createElement('option'); // Created a new option element inside the loop using document.createElement.
     element.value = id; // Assuming 'id' is the correct property for the value
     element.innerText = name; // Set the value and innerText properties of the option element.
@@ -168,10 +165,9 @@ for (const [id, name] of Object.entries(authors)) {  // Used const [id, name] to
 dataSearchAuthors.appendChild(authors) // append 'authors' document fragment to the DOM element
 
 // LIST BUTTON
-// code is updating the text content of an HTML element with the id 'data-list-button'.
-dataListButton.textContent = `Show more (${books.length - BOOKS_PER_PAGE})`;
-// code disables the "Show more" button when there are no more additional items to display
-dataListDi = !(matches.length - [page * BOOKS_PER_PAGE] > 0);
+// code updates the appearance and functionality of a "Show more" button in a list, providing information about the number of remaining items
+dataListButton.textContent = `Show more (${books.length - BOOKS_PER_PAGE})`; // calculates the number of additonal items to display. Indicates how many more items can be shown.
+dataListDisabled = !(matches.length - [page * BOOKS_PER_PAGE] > 0); // code disables the "Show more" button when there are no more additional items to display
 // code allows the user to see the number of remaining items that can be displayed when they click the "Show more" button.
 dataListButton.innerHTML = /* html */ `
     <span>Show more</span>
@@ -183,14 +179,16 @@ dataListItems.innerHTML = ''
 const fragment2 = document.createDocumentFragment()
 const extracted2 = books.slice(0, BOOKS_PER_PAGE);
 
-for (let i = 0; i < extracted.length; i++) {
-    const { author: authorId, id, image, title } = extracted[i]; // retrieves author's id, image, and title from the current element.
 
-    const element = document.createElement('button');
+// loop code is meant to create a series of buttons for book preview
+for (let i = 0; i < extracted.length; i++) { // 'i' is used as an index to access each element in the array.
+    const { author: authorId, id, image, title } = extracted[i]; // desctructing method that retrieves author's id, image, and title from the current element.
+
+    const element = document.createElement('button'); // new element created
     element.classList = 'preview';
     element.setAttribute('data-preview', id);
 
-    // Template literal that contains the structure of the content of each list item
+    // Template literal that contains the structure of the content of each list item. Defines HTML structure
     element.innerHTML = /* html */ `
         <img class="preview__image" src="${image}" />
         <div class="preview__info">
@@ -227,7 +225,7 @@ dataSearchCancel.addEventListener('click', function() {
 // EVENT LISTENER - cancel settings
 // coode allows the user to close the settings overlay when they click the "data-settings-cancel" button.
 dataSettingsCancel.addEventListener('click', function() {
-    document.querySelector('data-settings-overlay').open = false;
+    document.getElementById('dataSettingsOverlay').open = false;
 });
 
 // EVENT LISTENER - form settings
@@ -246,7 +244,7 @@ dataListClose.addEventListener('click', function() {
 // code handles clicks on the "data-list-button" element and updates the matches list by appending new matches to the list.
 dataListButton.addEventListener('click', function() {
     const matchesFragment = createMatchesFragment(matches);
-    document.querySelector('data-list-items').appendChild(matchesFragment);
+    document.querySelector('dataListItems').appendChild(matchesFragment);
     actions.list.updateRemaining();
     page = page + 1;
 });
